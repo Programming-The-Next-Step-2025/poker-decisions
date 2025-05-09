@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "HoldemHelper"
+version = "0.0.1"
+authors = [
+  { name="Maxim Kurvink", email="maxim.kurvink@student.uva.nl" },
+]
+description = "A package to aid in making informed poker decisions."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/pypa/sampleproject"
+Issues = "https://github.com/pypa/sampleproject/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["HoldemHelper"]
