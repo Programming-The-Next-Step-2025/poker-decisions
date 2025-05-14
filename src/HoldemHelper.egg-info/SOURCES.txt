@@ -1,9 +1,0 @@
-LICENSE
-README.md
-pyproject.toml
-src/HoldemHelper/__init__.py
-src/HoldemHelper/script.py
-src/HoldemHelper.egg-info/PKG-INFO
-src/HoldemHelper.egg-info/SOURCES.txt
-src/HoldemHelper.egg-info/dependency_links.txt
-src/HoldemHelper.egg-info/top_level.txt
