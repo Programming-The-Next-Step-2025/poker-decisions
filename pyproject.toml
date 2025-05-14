@@ -24,3 +24,7 @@ Issues = "https://github.com/pypa/sampleproject/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/HoldemHelper"]
+
+dependencies = [
+    "numpy"
+]
