@@ -44,24 +44,8 @@ def canonical_hand(hand):
         return f"{ranks[0]}{ranks[1]}"
     return f"{ranks[0]}{ranks[1]}{'s' if suited else 'o'}"
 
-def categorize_hand(hand):
-    if not isinstance(hand, str) or len(hand) != 4:
-        return 'unknown'
-    rank_order = '23456789TJQKA'
-    r1, s1, r2, s2 = hand[0], hand[1], hand[2], hand[3]
-    suited = s1 == s2
-    if r1 == r2:
-        return f"{r1}{r2}"  # e.g., 'KK'
-    ranks = sorted([r1, r2], key=lambda x: rank_order.index(x), reverse=True)
-    high, low = ranks
-    if suited:
-        return f"{high}{low}s"  # e.g., 'AKs'
-    return f"{high}{low}o"  # e.g., 'AKo'
-
-## The following three lines are now applied after DataFrame expansion below.
-# df['hero_holding'] = df['hero_holding'].apply(canonical_hand)
-# df['hand_category'] = df['hero_holding'].apply(categorize_hand)
-# df['hand_strength'] = df['hero_holding'].map(hand_strength).fillna(0.5)
+df['hero_holding'] = df['hero_holding'].apply(canonical_hand)
+df['hand_strength'] = df['hero_holding'].map(hand_strength).fillna(0.5)
 df_raw = df.copy()  # Save raw data for later inspection
 # Expand each row into multiple decision points (one per hero action)
 expanded_rows = []
@@ -140,11 +124,8 @@ for idx, row in df_raw.iterrows():
 
 # Convert to DataFrame
 df = pd.DataFrame(expanded_rows)
-# Now apply canonical_hand, categorize_hand, and hand_strength to the expanded df
 df['hero_holding'] = df['hero_holding'].apply(canonical_hand)
-df['hand_category'] = df['hero_holding'].apply(categorize_hand)
-df['hand_strength'] = df['hand_category'].map(hand_strength).fillna(0.5)
-
+df['hand_strength'] = df['hero_holding'].map(hand_strength).fillna(0.5)
 # Fill missing hero_holding and num_players in inferred folds
 df['hero_holding'].fillna('unknown', inplace=True)
 df['num_players'].fillna(6, inplace=True)  # assume 6 players if unknown
@@ -232,9 +213,9 @@ df['is_3bet_plus'] = df['num_raises'].apply(lambda x: x >= 2)
  # Remove hands with no meaningful info (likely auto-folds)
 df = df[~((df['hero_holding'] == 'unknown') & (df['prev_line'] == ''))].copy()
 features = [
-    'hand_category', 'hero_pos',
-    'facing_raise', 'num_raises', 'last_raiser_pos',
-    'estimated_pot', 'last_raise_size', 'num_players_still_in', 
+    'hero_holding', 'hero_pos',
+    'facing_raise', 'num_raises',
+    'estimated_pot', 'last_raise_size', 'num_players_still_in',
     'to_call', 'pot_odds', 'is_3bet_plus', 'hand_strength', 'hero_acted_before'
 ]
 target = 'correct_decision'
@@ -257,7 +238,7 @@ label_encoder = LabelEncoder()
 df['label'] = label_encoder.fit_transform(df[target])
 
 # Step 4: One-hot encode categorical features
-df_encoded = pd.get_dummies(df[['hand_category', 'hero_pos', 'last_raiser_pos']])
+df_encoded = pd.get_dummies(df[['hero_holding', 'hero_pos']])
 
 # Step 5: Combine encoded features with numeric ones
 X = pd.concat([
@@ -282,6 +263,27 @@ model = XGBClassifier(
 model.fit(X_train, y_train, sample_weight=sample_weights)
 
 # Step 8: Evaluate model
+
+# Override logic: if hero has a premium hand and is facing an all-in, force "call"
+premium_hands = {'AA', 'KK', 'QQ', 'AKs', 'AKo'}
+X_test_with_idx = X_test.copy()
+X_test_with_idx["original_idx"] = X_test_with_idx.index
+y_pred_adjusted = []
+
+for i, row in X_test_with_idx.iterrows():
+    original_idx = row["original_idx"]
+    hero_hand = df_raw.loc[original_idx]["hero_holding"]
+    prev_line = df_raw.loc[original_idx]["prev_line"]
+    if isinstance(prev_line, str) and "allin" in prev_line.lower() and hero_hand in premium_hands:
+        forced_label = label_encoder.transform(["call"])[0]
+        y_pred_adjusted.append(forced_label)
+    else:
+        y_pred_adjusted.append(model.predict([X.loc[original_idx]])[0])
+
+# Calculate adjusted accuracy
+adjusted_accuracy = accuracy_score(y_test, y_pred_adjusted)
+print(f"✅ Adjusted Accuracy (with forced call for premium hands vs all-in): {adjusted_accuracy:.2%}")
+
 y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print(f"\n✅ Model Accuracy: {accuracy:.2%}")
@@ -293,14 +295,28 @@ predicted = model.predict(samples)
 decoded = label_encoder.inverse_transform(predicted)
 probs = model.predict_proba(samples)
 
+
 for i, idx in enumerate(samples.index):
     print(f"\n--- Sample {i+1} ---")
-    print("🎯 Original decision and input:\n", df_raw.loc[idx])
-    print(f"🔍 Predicted action for sample hand: {decoded[i]}")
-    class_probs = dict(zip(label_encoder.classes_, probs[i]))
-    print("🔎 Prediction probabilities:", class_probs)
-    print(df[['hero_holding', 'hand_category', 'hand_strength']].sample(10))
+    original = df_raw.loc[idx]
+    print("🎯 Original decision and input:\n", original)
 
+    # If premium hand, dynamically choose 'call' if facing all-in, otherwise 'raise'
+    prev_line_str = original['prev_line'] if isinstance(original['prev_line'], str) else ''
+    if original['hero_holding'] in premium_hands:
+        if 'allin' in prev_line_str.lower():
+            forced_action = 'call'
+        else:
+            forced_action = 'raise'
+        print(f"🔍 Predicted action for sample hand: {forced_action} (forced due to premium hand)")
+        print("🔎 Prediction probabilities: Skipped (overridden due to premium hand)")
+    else:
+        pred = model.predict([X.loc[idx]])[0]
+        decoded_action = label_encoder.inverse_transform([pred])[0]
+        print(f"🔍 Predicted action for sample hand: {decoded_action}")
+        class_probs = dict(zip(label_encoder.classes_, model.predict_proba([X.loc[idx]])[0]))
+        print("🔎 Prediction probabilities:", class_probs)
+        
 print(df['correct_decision'].value_counts())
 
 import joblib
@@ -313,3 +329,9 @@ os.makedirs("model", exist_ok=True)
 joblib.dump(model, "model/poker_model.pkl")
 joblib.dump(label_encoder, "model/label_encoder.pkl")
 joblib.dump(X.columns.tolist(), "model/feature_columns.pkl")
+
+import matplotlib.pyplot as plt
+from xgboost import plot_importance
+
+plot_importance(model, max_num_features=15)
+plt.show()

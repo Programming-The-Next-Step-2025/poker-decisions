@@ -1,1 +1,1 @@
-from .script import add_three
+from .import_dataset import PokerModelTrainer

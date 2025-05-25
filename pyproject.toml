@@ -16,15 +16,23 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 license = "MIT"
-license-files = ["LICEN[CS]E*"]
+license-files = ["LICENSE*"]
 
 [project.urls]
-Homepage = "https://github.com/pypa/sampleproject"
-Issues = "https://github.com/pypa/sampleproject/issues"
+Homepage = "https://github.com/maximkurvink/poker-decisions"
+Issues = "https://github.com/maximkurvink/poker-decisions/issues"
+
+[project.scripts]
+holdem-app = "streamlit.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/HoldemHelper"]
 
 dependencies = [
-    "numpy"
+    "datasets", 
+    "pandas",
+    "scikit-learn",
+    "xgboost",
+    "joblib",
+    "streamlit"
 ]
