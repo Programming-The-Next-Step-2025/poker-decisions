@@ -1,11 +1,15 @@
 [tool.poetry]
-name = "holdemhelper"
+name = "HoldemHelper"
 version = "0.1.0"
 description = "A package to aid in making informed poker decisions."
 authors = ["Maxim Kurvink <maxim.kurvink@student.uva.nl>"]
 license = "MIT"
 readme = "README.md"
 packages = [{ include = "HoldemHelper", from = "src" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent"
+]
 
 [tool.poetry.dependencies]
 python = ">=3.9"
@@ -26,10 +30,5 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.urls]
 "Homepage" = "https://github.com/maximkurvink/poker-decisions"
 "Issues" = "https://github.com/maximkurvink/poker-decisions/issues"
-
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "Operating System :: OS Independent"
-]
 
 include = ["LICENSE*"]
