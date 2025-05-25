@@ -1,1 +1,1 @@
-from .script import *
+from .script import add_three
