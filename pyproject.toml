@@ -10,6 +10,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent"
 ]
+include = ["LICENSE"]
 
 [tool.poetry.dependencies]
 python = ">=3.9"
@@ -30,5 +31,3 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.urls]
 "Homepage" = "https://github.com/maximkurvink/poker-decisions"
 "Issues" = "https://github.com/maximkurvink/poker-decisions/issues"
-
-include = ["LICENSE*"]
