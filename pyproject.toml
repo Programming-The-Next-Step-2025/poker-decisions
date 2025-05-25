@@ -1,38 +1,35 @@
-[build-system]
-requires = ["hatchling >= 1.26"]
-build-backend = "hatchling.build"
-
-[project]
-name = "HoldemHelper"
-version = "0.0.1"
-authors = [
-  { name="Maxim Kurvink", email="maxim.kurvink@student.uva.nl" },
-]
+[tool.poetry]
+name = "holdemhelper"
+version = "0.1.0"
 description = "A package to aid in making informed poker decisions."
-readme = "README.md"
-requires-python = ">=3.9"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
-]
+authors = ["Maxim Kurvink <maxim.kurvink@student.uva.nl>"]
 license = "MIT"
-license-files = ["LICENSE*"]
+readme = "README.md"
+packages = [{ include = "HoldemHelper", from = "src" }]
 
-[project.urls]
-Homepage = "https://github.com/maximkurvink/poker-decisions"
-Issues = "https://github.com/maximkurvink/poker-decisions/issues"
+[tool.poetry.dependencies]
+python = ">=3.9"
+pandas = "*"
+scikit-learn = "*"
+xgboost = "*"
+joblib = "*"
+datasets = "*"
+streamlit = "*"
 
-[project.scripts]
+[tool.poetry.scripts]
 holdem-app = "streamlit.cli:main"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/HoldemHelper"]
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
-dependencies = [
-    "datasets", 
-    "pandas",
-    "scikit-learn",
-    "xgboost",
-    "joblib",
-    "streamlit"
+[tool.poetry.urls]
+"Homepage" = "https://github.com/maximkurvink/poker-decisions"
+"Issues" = "https://github.com/maximkurvink/poker-decisions/issues"
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent"
 ]
+
+include = ["LICENSE*"]
