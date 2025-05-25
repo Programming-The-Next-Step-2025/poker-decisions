@@ -1,5 +1,5 @@
 import joblib
-from recommend import recommend_action
+from HoldemHelper.recommend import recommend_action
 
 # Load model and metadata
 model = joblib.load("model/poker_model.pkl")
