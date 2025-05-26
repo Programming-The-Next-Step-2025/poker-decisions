@@ -7,7 +7,7 @@ import plotly.express as px
 from HoldemHelper.recommend import PokerRecommender
 
 # Set up the title
-st.title("Poker Decision Assistant")
+st.title("Poker Assistant")
 
 st.subheader("Select Your Cards")
 col1, col2 = st.columns(2)
