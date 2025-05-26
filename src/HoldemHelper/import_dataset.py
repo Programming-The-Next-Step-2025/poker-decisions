@@ -224,8 +224,7 @@ class PokerModelTrainer:
             'hero_holding', 'hero_pos',
             'facing_raise', 'num_raises',
             'estimated_pot', 'last_raise_size', 'num_players_still_in',
-            'to_call', 'pot_odds', 'is_3bet_plus', 'hand_strength', 'hero_acted_before',
-            'is_synthetic'
+            'to_call', 'pot_odds', 'is_3bet_plus', 'hand_strength', 'hero_acted_before'
         ]
         target = 'correct_decision'
 
