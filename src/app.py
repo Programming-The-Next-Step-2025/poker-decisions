@@ -63,8 +63,21 @@ if st.button("Get Recommendation"):
         st.subheader("Prediction Probabilities:")
 
         st.write("")
-        # Create a bar chart for probabilities using Plotly
+        # Create a horizontal bar chart for probabilities using Plotly with blue gradients, no grid, and no title
         actions = list(probabilities.keys())
         probs = [float(probabilities[a]) for a in actions]
-        fig = px.bar(x=actions, y=probs, labels={'x': 'Action', 'y': 'Probability'}, title='Prediction Probabilities')
+        fig = px.bar(
+            x=probs,
+            y=actions,
+            orientation='h',
+            labels={'x': 'Probability', 'y': 'Action'},
+            color=actions,
+            color_discrete_sequence=px.colors.sequential.Blues
+        )
+        fig.update_layout(
+            title=None,
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=False),
+            showlegend=False
+        )
         st.plotly_chart(fig)
