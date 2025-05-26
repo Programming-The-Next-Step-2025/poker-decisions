@@ -191,6 +191,8 @@ class PokerModelTrainer:
 
         # Convert to DataFrame
         df = pd.DataFrame(expanded_rows)
+        # Add marker for synthetic rows (all False here, will add True on synthetic appends)
+        df['is_synthetic'] = False
         df['hero_holding'] = df['hero_holding'].apply(self.canonical_hand)
         df['hand_strength'] = df['hero_holding'].map(hand_strength).fillna(0.5)
         # Fill missing hero_holding and num_players in inferred folds
@@ -222,7 +224,8 @@ class PokerModelTrainer:
             'hero_holding', 'hero_pos',
             'facing_raise', 'num_raises',
             'estimated_pot', 'last_raise_size', 'num_players_still_in',
-            'to_call', 'pot_odds', 'is_3bet_plus', 'hand_strength', 'hero_acted_before'
+            'to_call', 'pot_odds', 'is_3bet_plus', 'hand_strength', 'hero_acted_before',
+            'is_synthetic'
         ]
         target = 'correct_decision'
 
@@ -264,7 +267,8 @@ class PokerModelTrainer:
                 'is_3bet_plus': False,
                 'hand_strength': hand_strength.get(canon_hand, 0.2),
                 'hero_acted_before': False,
-                'correct_decision': 'fold'
+                'correct_decision': 'fold',
+                'is_synthetic': True
             }])], ignore_index=True)
 
         # Add synthetic premium 4-bet/5-bet hands with realistic strong hands (use real card strings)
@@ -297,8 +301,13 @@ class PokerModelTrainer:
                 'is_3bet_plus': True,
                 'hand_strength': hand_strength.get(canon_hand, 1.0),
                 'hero_acted_before': True,
-                'correct_decision': 'raise'
+                'correct_decision': 'raise',
+                'is_synthetic': True
             }])], ignore_index=True)
+
+        print("✅ Total samples after augmentation:", len(df))
+        print("🧾 Label distribution after augmentation:")
+        print(df['correct_decision'].value_counts())
         self.df = df
         self.features = features
         self.target = target
@@ -310,6 +319,9 @@ class PokerModelTrainer:
 
         # Step 4: One-hot encode categorical features
         df_encoded = pd.get_dummies(self.df[['hero_holding', 'hero_pos']])
+        print("🧩 Encoded columns:", df_encoded.columns.tolist())
+        print("🔍 Sample encoded rows from the end (should include synthetic):")
+        print(df_encoded.tail())
 
         # Step 5: Combine encoded features with numeric ones
         self.X = pd.concat([
@@ -342,27 +354,23 @@ class PokerModelTrainer:
         accuracy = accuracy_score(self.y_test, y_pred)
         print(f"\n✅ Model Accuracy: {accuracy:.2%}")
 
-        # DEBUG code commented out as per instructions
-        # DEBUG = False
-        # if DEBUG:
-        #     num_samples = 10
-        #     samples = self.X_test.sample(n=num_samples, random_state=42)
-        #     predicted = self.model.predict(samples)
-        #     decoded = self.label_encoder.inverse_transform(predicted)
-        #     probs = self.model.predict_proba(samples)
-
-        #     for i, idx in enumerate(samples.index):
-        #         print(f"\n--- Sample {i+1} ---")
-        #         original = self.df_raw.loc[idx]
-        #         print("🎯 Original decision and input:\n", original)
-
-        #         pred = self.model.predict([self.X.loc[idx]])[0]
-        #         decoded_action = self.label_encoder.inverse_transform([pred])[0]
-        #         print(f"🔍 Predicted action for sample hand: {decoded_action}")
-        #         class_probs = dict(zip(self.label_encoder.classes_, self.model.predict_proba([self.X.loc[idx]])[0]))
-        #         print("🔎 Prediction probabilities:", class_probs)
-
-        #     print(self.df['correct_decision'].value_counts())
+        # 🔬 Testing model on synthetic UTG folds:
+        print("\n🔬 Testing model on synthetic UTG folds:")
+        synthetic_utg_folds = self.df[
+            (self.df['is_synthetic']) & 
+            (self.df['hero_holding'].isin(['93o', '92s'])) & 
+            (self.df['hero_pos'] == 'UTG')
+        ]
+        if len(synthetic_utg_folds) > 0:
+            synthetic_utg_folds = synthetic_utg_folds.sample(n=min(5, len(synthetic_utg_folds)), random_state=1)
+            for idx, row in synthetic_utg_folds.iterrows():
+                input_vector = self.X.loc[idx:idx]
+                pred_label = self.model.predict(input_vector)[0]
+                decoded = self.label_encoder.inverse_transform([pred_label])[0]
+                probs = self.model.predict_proba(input_vector)[0]
+                print(f"\n🧪 Synthetic Sample {idx}")
+                print(f"✋ Hero Holding: {row['hero_holding']} | Position: {row['hero_pos']} | Label: {row['correct_decision']}")
+                print(f"🔍 Predicted: {decoded} | Probabilities: {dict(zip(self.label_encoder.classes_, probs))}")
 
     def save_artifacts(self):
         # Ensure model directory exists
