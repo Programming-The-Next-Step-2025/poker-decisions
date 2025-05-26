@@ -247,7 +247,7 @@ class PokerModelTrainer:
         hero_positions_weak = ['UTG', 'HJ', 'CO']
         players_still_in_options = [6, 5, 4]
         position_pool = list(zip(hero_positions_weak, players_still_in_options))
-        for _ in range(100):  # Increase quantity for stronger signal
+        for _ in range(1000):  # Increase quantity for stronger signal
             raw_hand = random.choice(weak_offsuit_hands)
             canon_hand = self.canonical_hand(raw_hand)
             heropos, num_in = random.choice(position_pool)
@@ -275,7 +275,7 @@ class PokerModelTrainer:
         players_still_in = [2, 3, 4, 5, 6]
         hero_poss = ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB']
         raises = [3, 4]
-        for _ in range(100):  # Increase for better learning
+        for _ in range(1000):  # Increase for better learning
             raw_hand = random.choice(premium_hands)
             canon_hand = self.canonical_hand(raw_hand)
             pl_still_in = random.choice(players_still_in)
