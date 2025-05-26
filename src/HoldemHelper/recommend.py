@@ -2,6 +2,7 @@ import pandas as pd
 import joblib
 from .hand_strengths import hand_strength
 from .utils import canonical_hand, parse_prev_line
+import streamlit as st
 
 class PokerRecommender:
     def __init__(self, model_path="model/poker_model.pkl", encoder_path="model/label_encoder.pkl", feature_path="model/feature_columns.pkl"):
@@ -44,7 +45,7 @@ class PokerRecommender:
         decoded_prediction = self.label_encoder.inverse_transform(prediction)[0]
         class_probs = dict(zip(self.label_encoder.classes_, probabilities))
 
-        print(f"🧪 Inference hand: {hero_holding}, position: {hero_pos}, features: {df.columns[df.any()].tolist()}")
-        print(f"🧠 Model predicts: {decoded_prediction}, Probabilities: {class_probs}")
+        st.write(f"🧪 Inference hand: {hero_holding}, position: {hero_pos}, features: {df.columns[df.any()].tolist()}")
+        st.write(f"🧠 Model predicts: {decoded_prediction}, Probabilities: {class_probs}")
 
         return decoded_prediction, class_probs
