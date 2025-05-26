@@ -20,7 +20,7 @@ xgboost = "*"
 joblib = "*"
 datasets = "*"
 streamlit = "*"
-matplotlib = "*"
+plotly = "*"
 
 [tool.poetry.scripts]
 holdem-app = "streamlit.cli:main"

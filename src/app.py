@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
 
 import streamlit as st
-import matplotlib.pyplot as plt
+import plotly.express as px
 from HoldemHelper.recommend import PokerRecommender
 
 # Set up the title
@@ -63,12 +63,8 @@ if st.button("Get Recommendation"):
         st.subheader("Prediction Probabilities:")
 
         st.write("")
-
-        # Create a simple bar chart for probabilities
-        fig, ax = plt.subplots()
+        # Create a bar chart for probabilities using Plotly
         actions = list(probabilities.keys())
         probs = [float(probabilities[a]) for a in actions]
-        ax.bar(actions, probs)
-        ax.set_ylabel('Probability')
-        ax.set_title('Prediction Probabilities')
-        st.pyplot(fig)
+        fig = px.bar(x=actions, y=probs, labels={'x': 'Action', 'y': 'Probability'}, title='Prediction Probabilities')
+        st.plotly_chart(fig)
