@@ -9,6 +9,18 @@ from HoldemHelper.recommend import PokerRecommender
 # Set up the title
 st.title("Poker Assistant")
 
+st.markdown(
+    """
+    Welcome to the **Poker Assistant**, powered by the `HoldemHelper` package.
+
+    This app provides **Preflop strategy recommendations** for various 6-player Texas Hold'em poker scenarios.  
+    Simply enter your hand, position, and any prior actions at the table to receive a data-driven recommendation.
+
+    ℹ️ If you're unsure how to fill in a section, click the **help icons** or expand the tips for guidance.  
+    🃏 Need a refresher on the rules of Texas Hold'em? [Learn more here.](https://bicyclecards.com/how-to-play/texas-holdem-poker)
+    """
+)
+
 st.subheader("Select Your Cards")
 col1, col2 = st.columns(2)
 ranks = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]

@@ -240,16 +240,19 @@ class PokerModelTrainer:
         df = df[features + [target]]
 
         # Add synthetic data to balance and enrich dataset
-        # Add synthetic UTG folds with realistic weak hands
-        weak_offsuit_hands = ['72o', '93o', 'T2o', '84o', 'J3o', '32o']
+        # Add synthetic UTG folds with realistic weak hands (use real card strings)
+        weak_offsuit_hands = [
+            '9s3h', '7d2c', 'Th2c', '8c4d', 'Jc3s', '3d2h'
+        ]
         hero_positions_weak = ['UTG', 'HJ', 'CO']
         players_still_in_options = [6, 5, 4]
         position_pool = list(zip(hero_positions_weak, players_still_in_options))
         for _ in range(100):  # Increase quantity for stronger signal
-            weak_hand = random.choice(weak_offsuit_hands)
+            raw_hand = random.choice(weak_offsuit_hands)
+            canon_hand = self.canonical_hand(raw_hand)
             heropos, num_in = random.choice(position_pool)
             df = pd.concat([df, pd.DataFrame([{
-                'hero_holding': weak_hand,
+                'hero_holding': canon_hand,
                 'hero_pos': heropos,
                 'facing_raise': False,
                 'num_raises': 0,
@@ -259,19 +262,22 @@ class PokerModelTrainer:
                 'to_call': 0.0,
                 'pot_odds': 0.0,
                 'is_3bet_plus': False,
-                'hand_strength': hand_strength.get(weak_hand, 0.2),
+                'hand_strength': hand_strength.get(canon_hand, 0.2),
                 'hero_acted_before': False,
                 'correct_decision': 'fold'
             }])], ignore_index=True)
 
-        # Add synthetic premium 4-bet/5-bet hands with realistic strong hands
-        premium_hands = ['AA', 'KK', 'QQ', 'AKs']
+        # Add synthetic premium 4-bet/5-bet hands with realistic strong hands (use real card strings)
+        premium_hands = [
+            'AsAd', 'KsKh', 'QhQc', 'AcKc', 'AhAs', 'AdKc'
+        ]
         last_raise_sizes = [50.0, 30.0, 25.0, 15.0, 60.0, 77.0, 34.0]
         players_still_in = [2, 3, 4, 5, 6]
         hero_poss = ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB']
         raises = [3, 4]
         for _ in range(100):  # Increase for better learning
-            premium_hand = random.choice(premium_hands)
+            raw_hand = random.choice(premium_hands)
+            canon_hand = self.canonical_hand(raw_hand)
             pl_still_in = random.choice(players_still_in)
             numraise = random.choice(raises)
             heroposs = random.choice(hero_poss)
@@ -279,7 +285,7 @@ class PokerModelTrainer:
             estimated_pot_val = random.uniform(25, 80)
             to_call_val = last_raise_s
             df = pd.concat([df, pd.DataFrame([{
-                'hero_holding': premium_hand,
+                'hero_holding': canon_hand,
                 'hero_pos': heroposs,
                 'facing_raise': True,
                 'num_raises': numraise,
@@ -289,7 +295,7 @@ class PokerModelTrainer:
                 'last_raise_size': last_raise_s,
                 'num_players_still_in': pl_still_in,
                 'is_3bet_plus': True,
-                'hand_strength': hand_strength.get(premium_hand, 1.0),
+                'hand_strength': hand_strength.get(canon_hand, 1.0),
                 'hero_acted_before': True,
                 'correct_decision': 'raise'
             }])], ignore_index=True)
