@@ -72,8 +72,10 @@ if st.button("Get Recommendation"):
             orientation='h',
             labels={'x': 'Probability', 'y': 'Action'},
             color=actions,
-            color_discrete_sequence=px.colors.sequential.Blues
+            color_discrete_sequence=px.colors.sequential.Blues,
+            hover_data={"x": True, "y": False, "color": False}
         )
+        fig.update_traces(hovertemplate='Probability: %{x:.2f}<extra></extra>')
         fig.update_layout(
             title=None,
             xaxis=dict(showgrid=False),
