@@ -245,12 +245,13 @@ class PokerModelTrainer:
         # Add synthetic data to balance and enrich dataset
         # Add synthetic UTG folds with realistic weak hands (use real card strings)
         weak_offsuit_hands = [
-            '9s3h', '7d2c', 'Th2c', '8c4d', 'Jc3s', '3d2h'
+            '9s3h', '7d2c', 'Th2c', '8c4d', 'Jc3s', '3d2h',
+            '6h2d', '5c3h', '9d2s', 'Td3c', '8h2s', '4c2d'
         ]
         hero_positions_weak = ['UTG', 'HJ', 'CO']
         players_still_in_options = [6, 5, 4]
         position_pool = list(zip(hero_positions_weak, players_still_in_options))
-        for _ in range(1000):  # Increase quantity for stronger signal
+        for _ in range(3000):  # Increase quantity for stronger signal and coverage
             raw_hand = random.choice(weak_offsuit_hands)
             canon_hand = self.canonical_hand(raw_hand)
             heropos, num_in = random.choice(position_pool)
@@ -268,7 +269,8 @@ class PokerModelTrainer:
                 'hand_strength': hand_strength.get(canon_hand, 0.2),
                 'hero_acted_before': False,
                 'correct_decision': 'fold',
-                'is_synthetic': True
+                'is_synthetic': True,
+                'sample_weight': 3.0
             }])], ignore_index=True)
 
         # Add synthetic premium 4-bet/5-bet hands with realistic strong hands (use real card strings)
@@ -302,12 +304,19 @@ class PokerModelTrainer:
                 'hand_strength': hand_strength.get(canon_hand, 1.0),
                 'hero_acted_before': True,
                 'correct_decision': 'raise',
-                'is_synthetic': True
+                'is_synthetic': True,
+                'sample_weight': 3.0
             }])], ignore_index=True)
 
         print("✅ Total samples after augmentation:", len(df))
         print("🧾 Label distribution after augmentation:")
         print(df['correct_decision'].value_counts())
+        # Add sample_weight column for all data (real = 1.0, synthetic = 3.0)
+        if 'sample_weight' not in df.columns:
+            df['sample_weight'] = df['is_synthetic'].apply(lambda x: 3.0 if x else 1.0)
+        else:
+            # For any missing sample_weight (e.g., non-synthetic), fill with 1.0
+            df['sample_weight'].fillna(df['is_synthetic'].apply(lambda x: 3.0 if x else 1.0), inplace=True)
         self.df = df
         self.features = features
         self.target = target
@@ -334,7 +343,8 @@ class PokerModelTrainer:
         X_train, X_test, y_train, y_test = train_test_split(
             self.X, self.y, test_size=0.2, random_state=42
         )
-        sample_weights = compute_sample_weight(class_weight='balanced', y=y_train)
+        # Use sample weights from the DataFrame
+        sample_weights = self.df.loc[y_train.index, 'sample_weight']
 
         # Step 7: Train XGBoost model
         self.model = XGBClassifier(

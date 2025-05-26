@@ -45,7 +45,4 @@ class PokerRecommender:
         decoded_prediction = self.label_encoder.inverse_transform(prediction)[0]
         class_probs = dict(zip(self.label_encoder.classes_, probabilities))
 
-        st.write(f"🧪 Inference hand: {hero_holding}, position: {hero_pos}, features: {df.columns[df.any()].tolist()}")
-        st.write(f"🧠 Model predicts: {decoded_prediction}, Probabilities: {class_probs}")
-
         return decoded_prediction, class_probs
