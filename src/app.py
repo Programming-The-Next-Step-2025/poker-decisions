@@ -8,8 +8,22 @@ from HoldemHelper.recommend import PokerRecommender
 # Set up the title
 st.title("Poker Decision Assistant")
 
-# Input fields
-hero_holding = st.text_input("Hero Holding (e.g. AsKs, QdQc):")
+st.subheader("Select Your Cards")
+col1, col2 = st.columns(2)
+ranks = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
+suits = {"♠": "s", "♥": "h", "♦": "d", "♣": "c"}
+
+with col1:
+    rank1 = st.selectbox("Card 1 Rank", ranks, key="rank1")
+    suit1_symbol = st.radio("Card 1 Suit", list(suits.keys()), horizontal=True, key="suit1")
+    suit1 = suits[suit1_symbol]
+
+with col2:
+    rank2 = st.selectbox("Card 2 Rank", ranks, key="rank2")
+    suit2_symbol = st.radio("Card 2 Suit", list(suits.keys()), horizontal=True, key="suit2")
+    suit2 = suits[suit2_symbol]
+
+hero_holding = f"{rank1}{suit1}{rank2}{suit2}"
 hero_pos = st.selectbox("Hero Position", ["UTG", "HJ", "CO", "BTN", "SB", "BB"])
 
 # Disable player count and update label
@@ -26,8 +40,12 @@ for i in range(num_actions):
     col1, col2 = st.columns(2)
     available_positions = [p for p in positions if p not in [bp.split("/")[0] for bp in betting_line_parts]]
     pos = col1.selectbox(f"Position for Action {i+1}", available_positions, key=f"pos_{i}")
-    act = col2.text_input(f"Action for {pos} (e.g., fold, call, 6.5bb)", key=f"act_{i}")
-    betting_line_parts.append(f"{pos}/{act}")
+    action = col2.selectbox(f"Action for {pos}", ["fold", "call", "raise"], key=f"act_type_{i}")
+    if action == "raise":
+        raise_size = st.number_input(f"Raise size for {pos} (in bb)", min_value=0.1, step=0.1, key=f"raise_{i}")
+        betting_line_parts.append(f"{pos}/{raise_size}bb")
+    else:
+        betting_line_parts.append(f"{pos}/{action}")
 
 prev_line = "/".join(betting_line_parts)
 
@@ -42,4 +60,15 @@ if st.button("Get Recommendation"):
         prediction, probabilities = recommender.recommend(hero_holding, hero_pos, prev_line, num_players)
         st.success(f"Recommended Action: **{prediction.upper()}**")
         st.subheader("Prediction Probabilities:")
-        st.write(probabilities)
+        import matplotlib.pyplot as plt
+
+        st.write("")
+
+        # Create a simple bar chart for probabilities
+        fig, ax = plt.subplots()
+        actions = list(probabilities.keys())
+        probs = [float(probabilities[a]) for a in actions]
+        ax.bar(actions, probs)
+        ax.set_ylabel('Probability')
+        ax.set_title('Prediction Probabilities')
+        st.pyplot(fig)
