@@ -53,7 +53,7 @@ hero_pos = st.selectbox(
     help="Your position at the table. UTG is first to act, BB is last."
 )
 with st.expander("Show Table Positions Help"):
-    st.image("images/poker_positions.jpg", caption="Poker table positions (1 = UTG, ..., 6 = BB)", use_column_width=True)
+    st.image("src/images/poker_positions.jpg", caption="Poker table positions (1 = UTG, ..., 6 = BB)", use_column_width=True)
 
 # Disable player count and update label
 num_players = st.number_input(
