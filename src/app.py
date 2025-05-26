@@ -134,7 +134,8 @@ if st.button("Get Recommendation"):
             y="Action",
             orientation='h',
             color="Action",
-            color_discrete_sequence=px.colors.sequential.gray,
+            color_discrete_sequence=["#003f5c", "#2f4b7c", "#665191"],
+            opacity=0.50,
             hover_data={"Probability": ":.2f"}
         )
         fig.update_traces(hovertemplate='Probability: %{x:.2f}<extra></extra>')
