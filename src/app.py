@@ -3,6 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".")))
 
 import streamlit as st
+import matplotlib.pyplot as plt
 from HoldemHelper.recommend import PokerRecommender
 
 # Set up the title
@@ -60,7 +61,6 @@ if st.button("Get Recommendation"):
         prediction, probabilities = recommender.recommend(hero_holding, hero_pos, prev_line, num_players)
         st.success(f"Recommended Action: **{prediction.upper()}**")
         st.subheader("Prediction Probabilities:")
-        import matplotlib.pyplot as plt
 
         st.write("")
 
