@@ -379,6 +379,7 @@ class PokerModelTrainer:
         print(f"🧠 Saving model...")
         print(f"🧾 Label encoder classes: {self.label_encoder.classes_}")
         print(f"📊 Feature columns: {self.X.columns.tolist()}")
+        print(self.df[self.df["hero_holding"] == "93o"].tail(10))
 
         # Save trained model, label encoder, and feature columns
         joblib.dump(self.model, "model/poker_model.pkl")
