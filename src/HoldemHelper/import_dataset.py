@@ -238,6 +238,43 @@ class PokerModelTrainer:
 
         df = df[features + [target]]
 
+        # Add synthetic data to balance and enrich dataset
+        # Add synthetic UTG folds
+        for _ in range(16):  # Add more synthetic UTG/fold examples
+            df = pd.concat([df, pd.DataFrame([{
+                'hero_holding': 'unknown',
+                'hero_pos': 'UTG',
+                'facing_raise': False,
+                'num_raises': 0,
+                'estimated_pot': 1.5,
+                'last_raise_size': 0.0,
+                'num_players_still_in': 6,
+                'to_call': 0.0,
+                'pot_odds': 0.0,
+                'is_3bet_plus': False,
+                'hand_strength': 0.5,
+                'hero_acted_before': False,
+                'correct_decision': 'fold'
+            }])], ignore_index=True)
+
+        # Add synthetic premium 4-bet/5-bet hands facing heavy aggression
+        for _ in range(16):  # Add more synthetic examples for high-value hands facing heavy aggression
+            df = pd.concat([df, pd.DataFrame([{
+                'hero_holding': 'AA',
+                'hero_pos': 'BTN',
+                'facing_raise': True,
+                'num_raises': 3,
+                'estimated_pot': 10.0,
+                'last_raise_size': 4.0,
+                'num_players_still_in': 2,
+                'to_call': 4.0,
+                'pot_odds': 0.29,
+                'is_3bet_plus': True,
+                'hand_strength': 1.0,
+                'hero_acted_before': True,
+                'correct_decision': 'raise'
+            }])], ignore_index=True)
+
         self.df = df
         self.features = features
         self.target = target
