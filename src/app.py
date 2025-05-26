@@ -64,16 +64,21 @@ if st.button("Get Recommendation"):
 
         st.write("")
         # Create a horizontal bar chart for probabilities using Plotly with blue gradients, no grid, and no title
+        import pandas as pd
         actions = list(probabilities.keys())
         probs = [float(probabilities[a]) for a in actions]
+        df = pd.DataFrame({
+            "Action": actions,
+            "Probability": probs
+        })
         fig = px.bar(
-            x=probs,
-            y=actions,
+            df,
+            x="Probability",
+            y="Action",
             orientation='h',
-            labels={'x': 'Probability', 'y': 'Action'},
-            color=actions,
+            color="Action",
             color_discrete_sequence=px.colors.sequential.Blues,
-            hover_data={"x": True, "y": False, "color": False}
+            hover_data={"Probability": ":.2f"}
         )
         fig.update_traces(hovertemplate='Probability: %{x:.2f}<extra></extra>')
         fig.update_layout(
