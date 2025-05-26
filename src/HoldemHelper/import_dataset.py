@@ -376,6 +376,10 @@ class PokerModelTrainer:
         # Ensure model directory exists
         os.makedirs("model", exist_ok=True)
 
+        print(f"🧠 Saving model...")
+        print(f"🧾 Label encoder classes: {self.label_encoder.classes_}")
+        print(f"📊 Feature columns: {self.X.columns.tolist()}")
+
         # Save trained model, label encoder, and feature columns
         joblib.dump(self.model, "model/poker_model.pkl")
         joblib.dump(self.label_encoder, "model/label_encoder.pkl")
