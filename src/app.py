@@ -82,7 +82,7 @@ if st.button("Get Recommendation"):
         )
         fig.update_traces(hovertemplate='Probability: %{x:.2f}<extra></extra>')
         fig.update_layout(
-            title=None,
+            title="",
             xaxis=dict(showgrid=False),
             yaxis=dict(showgrid=False),
             showlegend=False
