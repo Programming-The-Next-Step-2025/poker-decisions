@@ -265,7 +265,7 @@ class PokerModelTrainer:
                 'to_call': 0.0,
                 'pot_odds': 0.0,
                 'is_3bet_plus': False,
-                'hand_strength': hand_strength.get(canon_hand, 0.2),
+                # 'hand_strength': hand_strength.get(canon_hand, 0.2),  # Removed as per instructions
                 'hero_acted_before': False,
                 'correct_decision': 'fold',
                 'is_synthetic': True,
@@ -300,12 +300,16 @@ class PokerModelTrainer:
                 'last_raise_size': last_raise_s,
                 'num_players_still_in': pl_still_in,
                 'is_3bet_plus': True,
-                'hand_strength': hand_strength.get(canon_hand, 1.0),
+                # 'hand_strength': hand_strength.get(canon_hand, 1.0),  # Removed as per instructions
                 'hero_acted_before': True,
                 'correct_decision': 'raise',
                 'is_synthetic': True,
                 'sample_weight': 3.0
             }])], ignore_index=True)
+
+        # After adding synthetic samples, reassign hand_strength for real rows and fill missing values
+        df['hand_strength'] = df['hero_holding'].map(hand_strength)
+        df['hand_strength'].fillna(0.5, inplace=True)
 
         print("✅ Total samples after augmentation:", len(df))
         print("🧾 Label distribution after augmentation:")
