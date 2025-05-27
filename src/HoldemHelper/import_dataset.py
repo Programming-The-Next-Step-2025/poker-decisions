@@ -316,6 +316,9 @@ class PokerModelTrainer:
         else:
             # For any missing sample_weight (e.g., non-synthetic), fill with 1.0
             df['sample_weight'].fillna(df['is_synthetic'].apply(lambda x: 3.0 if x else 1.0), inplace=True)
+        # Remove 'is_synthetic' column if present
+        if 'is_synthetic' in df.columns:
+            df.drop(columns=['is_synthetic'], inplace=True)
         self.df = df
         self.features = features
         self.target = target
@@ -327,6 +330,9 @@ class PokerModelTrainer:
 
         # Step 4: One-hot encode categorical features
         df_encoded = pd.get_dummies(self.df[['hero_holding', 'hero_pos']])
+        # Remove 'is_synthetic' column if present in encoded DataFrame
+        if 'is_synthetic' in df_encoded.columns:
+            df_encoded.drop(columns=['is_synthetic'], inplace=True)
         print("🧩 Encoded columns:", df_encoded.columns.tolist())
         print("🔍 Sample encoded rows from the end (should include synthetic):")
         print(df_encoded.tail())
