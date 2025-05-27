@@ -241,18 +241,13 @@ class PokerModelTrainer:
 
         df = df[features + [target]]
 
-        # Add synthetic data to balance and enrich dataset
-        # Add synthetic UTG folds with realistic weak hands (use real card strings)
-        weak_offsuit_hands = [
-            '9s3h', '7d2c', 'Th2c', '8c4d', 'Jc3s', '3d2h',
-            '6h2d', '5c3h', '9d2s', 'Td3c', '8h2s', '4c2d'
-        ]
+        # Add synthetic folds for all weak hands with hand_strength < 0.5
+        weak_hands = [h for h, s in hand_strength.items() if s < 0.5]
         hero_positions_weak = ['UTG', 'HJ', 'CO']
         players_still_in_options = [6, 5, 4]
         position_pool = list(zip(hero_positions_weak, players_still_in_options))
-        for _ in range(3000):  # Increase quantity for stronger signal and coverage
-            raw_hand = random.choice(weak_offsuit_hands)
-            canon_hand = self.canonical_hand(raw_hand)
+        for _ in range(3000):
+            canon_hand = random.choice(weak_hands)
             heropos, num_in = random.choice(position_pool)
             df = pd.concat([df, pd.DataFrame([{
                 'hero_holding': canon_hand,
@@ -265,7 +260,6 @@ class PokerModelTrainer:
                 'to_call': 0.0,
                 'pot_odds': 0.0,
                 'is_3bet_plus': False,
-                # 'hand_strength': hand_strength.get(canon_hand, 0.2),  # Removed as per instructions
                 'hero_acted_before': False,
                 'correct_decision': 'fold',
                 'is_synthetic': True,
