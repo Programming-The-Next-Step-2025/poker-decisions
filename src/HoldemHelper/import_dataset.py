@@ -316,9 +316,6 @@ class PokerModelTrainer:
         else:
             # For any missing sample_weight (e.g., non-synthetic), fill with 1.0
             df['sample_weight'].fillna(df['is_synthetic'].apply(lambda x: 3.0 if x else 1.0), inplace=True)
-        # Remove 'is_synthetic' column if present
-        if 'is_synthetic' in df.columns:
-            df.drop(columns=['is_synthetic'], inplace=True)
         self.df = df
         self.features = features
         self.target = target
