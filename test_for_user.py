@@ -1,4 +1,5 @@
 import HoldemHelper
 
-decision, probs = recommender.recommend("93o", "UTG", "", 6)
-print(decision, probs)
+decision, probs = HoldemHelper.recommender.recommend("93o", "UTG", "", 6)
+print("Decision:", decision)
+print("Probabilities:", probs)

@@ -1,34 +1,33 @@
-[tool.poetry]
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "HoldemHelper"
 version = "0.1.0"
 description = "A package to aid in making informed poker decisions."
-authors = ["Maxim Kurvink <maxim.kurvink@student.uva.nl>"]
-license = "MIT"
-readme = "README.md"
-packages = [{ include = "HoldemHelper", from = "src" }]
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "Operating System :: OS Independent"
+authors = [
+  { name = "Maxim Kurvink", email = "maxim.kurvink@student.uva.nl" }
 ]
-include = ["LICENSE"]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "pandas",
+  "scikit-learn",
+  "xgboost",
+  "joblib",
+  "datasets",
+  "streamlit",
+  "plotly"
+]
 
-[tool.poetry.dependencies]
-python = ">=3.9"
-pandas = "*"
-scikit-learn = "*"
-xgboost = "*"
-joblib = "*"
-datasets = "*"
-streamlit = "*"
-plotly = "*"
+[tool.setuptools]
+package-dir = {"" = "src"}
 
-[tool.poetry.scripts]
-holdem-app = "streamlit.cli:main"
+[tool.setuptools.packages.find]
+where = ["src"]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.urls]
-"Homepage" = "https://github.com/maximkurvink/poker-decisions"
-"Issues" = "https://github.com/maximkurvink/poker-decisions/issues"
+[project.urls]
+Homepage = "https://github.com/maximkurvink/poker-decisions"
+Issues = "https://github.com/maximkurvink/poker-decisions/issues"
