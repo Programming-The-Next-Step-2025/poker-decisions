@@ -3,12 +3,17 @@ import joblib
 from .hand_strengths import hand_strength
 from .utils import canonical_hand, parse_prev_line
 import streamlit as st
+import importlib.resources
+from . import model  # model/ must have __init__.py
 
 class PokerRecommender:
-    def __init__(self, model_path="model/poker_model.pkl", encoder_path="model/label_encoder.pkl", feature_path="model/feature_columns.pkl"):
-        self.model = joblib.load(model_path)
-        self.label_encoder = joblib.load(encoder_path)
-        self.feature_columns = joblib.load(feature_path)
+    def __init__(self):
+        with importlib.resources.files(model).joinpath("poker_model.pkl").open("rb") as f:
+            self.model = joblib.load(f)
+        with importlib.resources.files(model).joinpath("label_encoder.pkl").open("rb") as f:
+            self.label_encoder = joblib.load(f)
+        with importlib.resources.files(model).joinpath("feature_columns.pkl").open("rb") as f:
+            self.feature_columns = joblib.load(f)
 
     def recommend(self, hero_holding, hero_pos, prev_line, num_players):
         # Normalize hand

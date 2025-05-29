@@ -22,6 +22,9 @@ dependencies = [
   "plotly"
 ]
 
+[tool.setuptools.package-data]
+"HoldemHelper" = ["model/*.pkl"]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
