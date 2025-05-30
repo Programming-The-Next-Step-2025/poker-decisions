@@ -7516,7 +7516,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Week-3-Project-Report">Week 3 Project Report<a class="anchor-link" href="#Week-3-Project-Report">¶</a></h1>
+<h1 id="Project-Report">Project Report<a class="anchor-link" href="#Project-Report">¶</a></h1><p>jupyter nbconvert --to html docs/anaconda_projects/db/report.ipynb</p>
 </div>
 </div>
 </div>
@@ -7527,7 +7527,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">¶</a></h1><p>This project aims to model optimal preflop decisions based on various variables that can be specified by the user, in order to get fitting advice on what decision to make.</p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">¶</a></h1><p>This project aims to aid users in making preflop poker decisions, based on a number of variables that the user can input. it relies on poker theory imbedded in a solver-based poker dataset, meaning the model is trained on data that consists of preflop scenarios that are labeled with objectively correct decisions. In addition to this, synthetic data has been added to further improve the model accuracy and to help with modeling scenarios frequently encountered in real-life situations. The user can both use the package in a python environment or can opt to use the browser-based Streamlit app, created for easy usage of the package.</p>
 </div>
 </div>
 </div>
@@ -7593,6 +7593,13 @@ a.anchor-link {
 <li>Call: 8000 hands</li>
 <li>Fold: 8000 hands</li>
 </ul>
+<p>With added synthetic data</p>
+<ul>
+<li>Raise: 9000 hands</li>
+<li>Call: 8000 hands</li>
+<li>Fold: 11000 hands</li>
+</ul>
+<p>Folds happen much more often than calls or raises, meaning that the higher amount of folds is proportionate to real life decision proportions.</p>
 <p>Target labels encoding</p>
 <ul>
 <li>Raise: 2</li>
@@ -7616,6 +7623,190 @@ a.anchor-link {
 <li>80/20 Train/Test split</li>
 <li>One-hot encoding for categorical variables (hero_pos, hand_category, etc.)</li>
 </ul>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h1 id="Project-Structure">Project Structure<a class="anchor-link" href="#Project-Structure">¶</a></h1><p>poker-decisions/
+├── src/
+│   ├── app.py                  # Streamlit app UI
+│   └── HoldemHelper/
+│       ├── import_dataset.py   # Dataset generation &amp; model training
+│       ├── recommend.py        # Prediction logic
+│       ├── hand_strengths.py   # Predefined hand strengths
+│       └── ...                 # Additional utilities
+├── model/                      # Trained model artifacts (.pkl)
+├── src/images/                 # Flowchart and UI screenshots
+└── README.md</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h1 id="Installing-the-package">Installing the package<a class="anchor-link" href="#Installing-the-package">¶</a></h1><p>To install the package:</p>
+<div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Programming-The-Next-Step-2025/poker-decisions.git
+<span class="nb">cd</span><span class="w"> </span>poker-decisions
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+<p>This manner of installation ensures you are able to make full use of the package's functions, with further instructions below on what arguments can be inputted.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h1 id="Using-the-package">Using the package<a class="anchor-link" href="#Using-the-package">¶</a></h1><p>As previously mentioned, the package can be used as a standalone package:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">HoldemHelper</span>
+
+<span class="n">decision</span><span class="p">,</span> <span class="n">probs</span> <span class="o">=</span> <span class="n">HoldemHelper</span><span class="o">.</span><span class="n">recommender</span><span class="o">.</span><span class="n">recommend</span><span class="p">(</span>
+    <span class="n">hero_holding</span> <span class="o">=</span> <span class="s2">"Th9h"</span><span class="p">,</span> 
+    <span class="n">hero_pos</span> <span class="o">=</span> <span class="s2">"CO"</span><span class="p">,</span> 
+    <span class="n">prev_line</span> <span class="o">=</span> <span class="s2">"UTG/call/HJ/2.5bb"</span><span class="p">,</span> 
+    <span class="n">num_players_still_in</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Decision:"</span><span class="p">,</span> <span class="n">decision</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Probabilities:"</span><span class="p">,</span> <span class="n">probs</span><span class="p">)</span>
+</pre></div>
+<p>However, the package can be used most easily when using the Streamlit app:</p>
+<div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>streamlit
+<span class="c1"># Or with conda:</span>
+conda<span class="w"> </span>update<span class="w"> </span>streamlit
+</pre></div>
+<div class="highlight"><pre><span></span>python3.12<span class="w"> </span>-m<span class="w"> </span>streamlit<span class="w"> </span>run<span class="w"> </span>src/app.py
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h1 id="App-Design">App Design<a class="anchor-link" href="#App-Design">¶</a></h1><p>The GUI has several elements:
+Introduction: The text atop of the page introduces the app and provides some additional information. For one, it points out to the user that every box has a help-icon, which allows the user to hover over and read a description of how the respective box is used. Additionally, it provides the user with al ink to a page describing the rules of Texas Hold'em poker.
+(1) Select your cards</p>
+<ul>
+<li>The 'Card 1 rank' and 'Card 2 rank' drop-down menu allow you to input your card ranks, meaning that you choose 2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, K, or A, corresponding to the cards the hero (you) hold in the scenario.</li>
+<li>The 'Card 1 suit' and 'Card 2 suit' multiple-choice menu allow you to select the suit corresponding to the respective card, being spades, hearts, diamonds, or clubs.</li>
+<li>The 'Hero Position' allows you to input the position of the hero (you) in the scenario, where the choices are between UTG, HJ, CO, BTN, SB, and BB. Below this box is an expandable image depicting the different positions on the poker table, to help the user figure out the correct position, if needed.</li>
+</ul>
+<p>(2) Previous actions</p>
+<ul>
+<li>The 'Number of Previous Actions' box allows the user to select the amount of actions that happened before the decision that they want a recommendation for. The maximum number of actions are 15. If a players action is not included in this section, the model assumes this player folded.</li>
+<li>After selecting the amount of players actions, the same number of rows fold open, where the user can input the position and action for the respective player. The choice of positions is the same as the choice of the hero positions. Then an action (i.e., call, fold, or raise) can be selected for every player. If raise is chosen, an additional text-input box opens up where the user can input the amount raised by the respective player upto two decimals.</li>
+</ul>
+<p>All the user needs to do after this is press the 'Get Recommendation' button and it outputs the 'Recommended Action', being fold, call, or raise. It also outputs a graph showing the different 'Prediction Probabilities'.</p>
+<p>Below are several images that depict:
+(1) The steps the user should take to use the package (properly)
+(2) How to launch the Streamlit app
+(3) Example inputs for the Streamlit app
+(4) The subsequent output</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Flowchart-of-User-Interaction">Flowchart of User Interaction<a class="anchor-link" href="#Flowchart-of-User-Interaction">¶</a></h2><p><img alt="Flowchart showing user flow" src="src/images/flowchart_image.png"/></p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Example-Usage">Example Usage<a class="anchor-link" href="#Example-Usage">¶</a></h2><p>Launching the App
+<img alt="Launch Streamlit" src="src/images/streamlit_launch.png"/></p>
+<p>Input Interface
+<img alt="User Input" src="src/images/interface_input.png"/></p>
+<p>Model Recommendation Output
+<img alt="Model Output" src="src/images/interface_output.png"/></p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h1 id="Inspiration">Inspiration<a class="anchor-link" href="#Inspiration">¶</a></h1><p>This package was inspired by my interest in poker strategy. The world of poker has seen a paradigm shift in the past four decades, going from a backroom intuitive game to a statistics-based, world wide game that everybody knows of. The game has evolved into one where the most knowledgable and insightful players see the most success. This is due to the increasing knowledge on statistics and the ability to share knowledge of these insights. Hundreds, if not thousands, of tables with correct decisions in different scenario's, with different raise sizes, incorporating variability of play and perfect strategy have become the standard in learning how to play proper poker. Although the current package does not come close to incorporating all that knowledge into one classifier, it incorporates a lot of the preflop knowledge for (common) 6-player games.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h1 id="Disclaimer">Disclaimer<a class="anchor-link" href="#Disclaimer">¶</a></h1><p>We strongly discourage using this app to aid in poker games where the use of any help is not allowed, or where disclosure of the usage is unclear. Additionally, the model this app relies on is imperfect, meaning that in some scenario's the app may not give the correct advice for the inputted scenario.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 </div>
 </div>
 </div>
