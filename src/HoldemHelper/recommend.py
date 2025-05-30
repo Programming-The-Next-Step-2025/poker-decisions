@@ -6,8 +6,15 @@ import streamlit as st
 import importlib.resources
 from . import model  # model/ must have __init__.py
 
+# Loads pretrained model and encoders for real-time inference.
+# Designed for stateless prediction using a fully serialized pipeline.
 class PokerRecommender:
     def __init__(self):
+        """
+        Loads model and preprocessing artifacts (XGBoost model, label encoder, feature columns).
+        - Uses importlib to safely access files inside the packaged `model/` directory.
+        - Assumes all artifacts were saved via joblib and are scikit-learn compatible.
+        """
         with importlib.resources.files(model).joinpath("poker_model.pkl").open("rb") as f:
             self.model = joblib.load(f)
         with importlib.resources.files(model).joinpath("label_encoder.pkl").open("rb") as f:
@@ -16,6 +23,15 @@ class PokerRecommender:
             self.feature_columns = joblib.load(f)
 
     def recommend(self, hero_holding, hero_pos, prev_line, num_players):
+        """
+        Constructs feature vector and predicts the recommended action.
+        - Canonicalizes input hand to match training format.
+        - Parses previous actions to derive contextual numeric features.
+        - Applies one-hot encoding to match feature layout from training.
+        
+        Returns:
+            Tuple[str, dict]: Predicted action label, and class probabilities.
+        """
         # Normalize hand
         hero_holding = canonical_hand(hero_holding)
 

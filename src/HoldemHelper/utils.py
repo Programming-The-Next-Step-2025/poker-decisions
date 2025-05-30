@@ -1,6 +1,11 @@
 # Normalize hero_holding to canonical form
 def canonical_hand(hand):
-    """Convert hand like 'AsKs' or 'KcKh' to canonical form like 'AKs' or 'KK'."""
+    """
+    Converts raw 4-character hand strings into canonical poker notation.
+    - Ensures higher card rank comes first (e.g. 'AsKs' becomes 'AKs').
+    - Uses 's' for suited and 'o' for offsuit; pairs are returned as 'QQ', etc.
+    - Assumes input format like 'AsKs' (4 characters: rank + suit x2).
+    """
     if not isinstance(hand, str) or len(hand) != 4:
         return hand
 
@@ -20,8 +25,14 @@ def canonical_hand(hand):
 
 def parse_prev_line(prev_line, hero_pos):
     """
-    Parses PokerBench-style action lines up to the hero's first action.
-    Returns a dict with parsed features.
+    Parses preflop betting sequence to extract decision context for the hero.
+    - Scans all actions up to (but not including) the hero's first decision.
+    - Tracks pot size, number of raises, aggression faced, and live opponents.
+    - Assumes actions are formatted like 'UTG/call/HJ/raise20bb/...'.
+    - 'hero_acted_before' is True if the hero appears earlier in the line (multi-action rows).
+    
+    Returns:
+        dict with features used for modeling preflop decision context.
     """
     facing_raise = False
     num_raises = 0

@@ -79,13 +79,12 @@ pip install -e .
 import HoldemHelper
 
 decision, probs = HoldemHelper.recommender.recommend(
-    hero_holding="Ts9h", 
-    hero_pos="SB", 
-    prev_line="UTG/fold/HJ/call/CO/2.0bb/BTN/call", 
-    num_players=5
-)
-
-print("Recommended Action:", decision)
+    hero_holding = "Th9h", 
+    hero_pos = "CO", 
+    prev_line = "UTG/call/HJ/2.5bb", 
+    num_players_still_in = 6
+    )
+print("Decision:", decision)
 print("Probabilities:", probs)
 ```
 
@@ -166,7 +165,7 @@ poker-decisions/
 
 ---
 
-## Example Screenshots
+## Example Usage
 
 ### Launching the App
 

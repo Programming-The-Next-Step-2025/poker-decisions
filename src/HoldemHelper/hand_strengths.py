@@ -1,3 +1,4 @@
+# An additional variabel manually added for improved model accuracy
 hand_strength = {
     "AA": 1.00, "KK": 0.995, "QQ": 0.990, "JJ": 0.985, "TT": 0.975,
     "AKs": 0.970, "AQs": 0.960, "AJs": 0.950, "ATs": 0.940, "KQs": 0.935,

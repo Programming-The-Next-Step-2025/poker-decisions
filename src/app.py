@@ -73,16 +73,16 @@ num_players = st.number_input(
 )
 
 # Multi-input form to build the betting line
-st.subheader("Opponent Actions (in order before Hero acts)")
+st.subheader("Previous Actions (in order before Hero acts)")
 positions = ["UTG", "HJ", "CO", "BTN", "SB", "BB"]
 
 num_actions = st.number_input(
-    "Number of Opponent Actions",
+    "Number of Previous Actions",
     min_value=0,
     max_value=15,
     value=0,
     step=1,
-    help="How many opponents have acted before you?"
+    help="How many players have acted before you?"
 )
 betting_line_parts = []
 
@@ -93,13 +93,13 @@ for i in range(num_actions):
         f"Position for Action {i+1}",
         available_positions,
         key=f"pos_{i}",
-        help="The position of the opponent who acted."
+        help="The position of the player who acted."
     )
     action = col2.selectbox(
         f"Action for {pos}",
         ["fold", "call", "raise"],
         key=f"act_type_{i}",
-        help="What action did this opponent take?"
+        help="What action did this player take?"
     )
     if action == "raise":
         raise_size = st.number_input(
