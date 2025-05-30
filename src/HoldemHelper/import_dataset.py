@@ -1,3 +1,10 @@
+# poker-decisions | import_dataset.py
+# Version: v1.0
+# Date: 2025-05-30
+# Description: Data ingestion, preprocessing, and training for PokerBench preflop decision model.
+#              Adds synthetic folds/raises and encodes contextual features.
+#              This version introduces full informing comments and version control headers.
+
 from datasets import load_dataset
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
@@ -10,6 +17,9 @@ import joblib
 import os
 import random
 
+# This class manages the full training pipeline: preprocessing, feature generation,
+# synthetic data injection, training, and evaluation. Methods are designed to preserve PokerBench
+# structure while inferring game context where it's missing.
 class PokerModelTrainer:
     def __init__(self):
         self.model = None
@@ -42,6 +52,11 @@ class PokerModelTrainer:
         return f"{ranks[0]}{ranks[1]}{'s' if suited else 'o'}"
 
     def normalize_action(self, action):
+        """
+        Maps action strings to standardized decisions: 'fold', 'call', 'raise'.
+        - Treats 'check' as passive/fold-like.
+        - Treats numeric 'xxbb' (e.g. '20bb') or 'allin' as a raise.
+        """
         action = str(action).lower()
         if 'fold' in action:
             return 'fold'
@@ -56,8 +71,12 @@ class PokerModelTrainer:
 
     def parse_prev_line(self, prev_line, hero_pos):
         """
-        Parses PokerBench-style action lines up to the hero's first action.
-        Returns: facing_raise, num_raises, last_raiser_pos, estimated_pot, last_raise_size, num_players_still_in
+        Parses the betting sequence before the hero's action.
+        Returns 6 features used to infer game state:
+            - facing_raise, num_raises, last_raiser_pos,
+              estimated_pot, last_raise_size, num_players_still_in
+
+        Assumes format like: 'UTG/call/HJ/20.0bb/...'.
         """
         facing_raise = False
         num_raises = 0
@@ -112,7 +131,6 @@ class PokerModelTrainer:
                 continue  # assumed to have folded
 
         num_players_still_in = len(positions_in) + 1  # include hero
-
         return facing_raise, num_raises, last_raiser_pos, estimated_pot, last_raise_size, num_players_still_in
 
     def load_and_preprocess(self):
@@ -153,7 +171,7 @@ class PokerModelTrainer:
                     })
                     found = True
 
-            # ✅ Only add this once per row if hero never acted in the prev_line
+            # Only add this once per row if hero never acted in the prev_line
             if not found:
                 expanded_rows.append({
                     'prev_line': row['prev_line'],
@@ -294,7 +312,6 @@ class PokerModelTrainer:
                 'last_raise_size': last_raise_s,
                 'num_players_still_in': pl_still_in,
                 'is_3bet_plus': True,
-                # 'hand_strength': hand_strength.get(canon_hand, 1.0),  # Removed as per instructions
                 'hero_acted_before': True,
                 'correct_decision': 'raise',
                 'is_synthetic': True,
@@ -305,9 +322,6 @@ class PokerModelTrainer:
         df['hand_strength'] = df['hero_holding'].map(hand_strength)
         df['hand_strength'].fillna(0.5, inplace=True)
 
-        print("✅ Total samples after augmentation:", len(df))
-        print("🧾 Label distribution after augmentation:")
-        print(df['correct_decision'].value_counts())
         # Add sample_weight column for all data (real = 1.0, synthetic = 3.0)
         if 'sample_weight' not in df.columns:
             df['sample_weight'] = df['is_synthetic'].apply(lambda x: 3.0 if x else 1.0)
@@ -328,9 +342,6 @@ class PokerModelTrainer:
         # Remove 'is_synthetic' column if present in encoded DataFrame
         if 'is_synthetic' in df_encoded.columns:
             df_encoded.drop(columns=['is_synthetic'], inplace=True)
-        print("🧩 Encoded columns:", df_encoded.columns.tolist())
-        print("🔍 Sample encoded rows from the end (should include synthetic):")
-        print(df_encoded.tail())
 
         # Step 5: Combine encoded features with numeric ones
         self.X = pd.concat([
@@ -363,24 +374,6 @@ class PokerModelTrainer:
         y_pred = self.model.predict(self.X_test)
         accuracy = accuracy_score(self.y_test, y_pred)
         print(f"\n✅ Model Accuracy: {accuracy:.2%}")
-
-        # 🔬 Testing model on synthetic UTG folds:
-        print("\n🔬 Testing model on synthetic UTG folds:")
-        synthetic_utg_folds = self.df[
-            (self.df['is_synthetic']) & 
-            (self.df['hero_holding'].isin(['93o', '92s'])) & 
-            (self.df['hero_pos'] == 'UTG')
-        ]
-        if len(synthetic_utg_folds) > 0:
-            synthetic_utg_folds = synthetic_utg_folds.sample(n=min(5, len(synthetic_utg_folds)), random_state=1)
-            for idx, row in synthetic_utg_folds.iterrows():
-                input_vector = self.X.loc[idx:idx]
-                pred_label = self.model.predict(input_vector)[0]
-                decoded = self.label_encoder.inverse_transform([pred_label])[0]
-                probs = self.model.predict_proba(input_vector)[0]
-                print(f"\n🧪 Synthetic Sample {idx}")
-                print(f"✋ Hero Holding: {row['hero_holding']} | Position: {row['hero_pos']} | Label: {row['correct_decision']}")
-                print(f"🔍 Predicted: {decoded} | Probabilities: {dict(zip(self.label_encoder.classes_, probs))}")
 
     def save_artifacts(self):
         # Ensure model directory exists
