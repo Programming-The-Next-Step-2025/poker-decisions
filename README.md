@@ -27,23 +27,78 @@ The package can be used programmatically or via an optional Streamlit interface.
 - Visualize recommendation probabilities.
 - Continuous improvements using synthetic scenarios like UTG folds and 4-bet/5-bet premiums.
 
+## User Scenario
+
+**Purpose:** Demonstrate how a typical user interacts with the HoldemHelper software to receive a recommendation for a preflop poker decision.
+
+**Individual:** Student A, a Research Master's student in Psychology at the University of Amsterdam. Interested in decision-making models and poker strategies.
+
+**Assumptions:**
+- The user has Python 3.9+ installed.
+- The HoldemHelper package has been installed locally.
+- The user has access to a web browser and a terminal.
+
+**Scenario:**
+
+1. Student A opens the terminal on their laptop and navigates to the HoldemHelper project directory.
+2. They run the command `streamlit run src/app.py` to launch the Streamlit app.
+3. The app opens in their default browser, showing a card and position input interface.
+4. Student A selects `"Q"` and `"J"` as ranks, and hearts for both suits.
+5. They choose `"BTN"` (Button) as their position.
+6. They enter prior actions: `"UTG/fold", "HJ/raise", "CO/call"`.
+7. Student A clicks the **Get Recommendation** button.
+8. The app shows: **Recommended Action: call** and displays a probability chart.
+9. Student A uses this to explore how hand strength and position affect optimal plays.
+
+This scenario exemplifies how HoldemHelper provides an intuitive and educational experience for learning optimal poker strategies based on machine learning predictions.
+
 ## Installation
 Clone the repository and install dependencies using pip:
 
 ```bash
 git clone https://github.com/Programming-The-Next-Step-2025/poker-decisions.git
 cd poker-decisions
-pip install -r requirements.txt
+pip install -e .
 ```
 
-Note: The `requirements.txt` file is automatically generated from `pyproject.toml` and includes all necessary dependencies.
+Example usage of the package as a script or in a package
+
+```python
+import HoldemHelper
+decision, probs = HoldemHelper.recommender.recommend(
+    hero_holding = "Ts9h", 
+    hero_pos = "SB", 
+    prev_line = "UTG/fold/HJ/call/CO/2.0bb/BTN/call", 
+    5)
+print(decision, probs)
+```
 
 ### Running the Optional Streamlit App
-To launch the Streamlit web app locally:
+
+To launch the Streamlit web app locally, ensure you're in the correct project directory, using the correct Python version (e.g., Python 3.12), and that your Streamlit version is up-to-date (v1.25.0 or later is recommended) to avoid compatibility issues such as unsupported keyword arguments like `use_container_width`. You can update Streamlit using:
 
 ```bash
-streamlit run src/app.py
+pip install --upgrade streamlit
+# or for conda users:
+conda update streamlit
 ```
+
+Booting up the Streamlit App:
+
+```bash
+cd path/to/poker-decisions
+python3.12 -m streamlit run src/app.py
+```
+
+This will open a browser window displaying the HoldemHelper interface. From there, you can:
+
+1. Select two hole cards (rank and suit).
+2. Choose your position at the table (UTG, HJ, CO, BTN, SB, BB).
+3. Input prior actions from opponents (e.g., `UTG/fold`, `HJ/raise`).
+4. Click **Get Recommendation** to receive a model-driven action.
+5. View a horizontal bar chart showing the probability distribution for `fold`, `call`, or `raise`.
+
+The app uses a trained XGBoost model to simulate optimal preflop decisions in real-time.
 
 ## Training the Model
 Regenerate training data and retrain the model:
@@ -56,23 +111,29 @@ This will save the model to `model/poker_model.pkl`, along with the encoder and 
 
 ## Using HoldemHelper as a Python Package
 
-After installing, you can use the core functionality in your own Python scripts:
+After installing the package, you can use the core functionality in your own Python scripts, provided you're running the script with the correct Python interpreter (e.g., Python 3.12 if that's where HoldemHelper was installed):
 
 ```python
-from HoldemHelper.recommend import PokerRecommender
+import HoldemHelper
 
-recommender = PokerRecommender()
-prediction, probabilities = recommender.recommend(
+decision, probabilities = HoldemHelper.recommender.recommend(
     hero_holding="QJs",
     hero_pos="BTN",
     prev_line="UTG/fold/HJ/raise/CO/call",
     num_players=6
 )
-print("Recommended Action:", prediction)
+
+print("Recommended Action:", decision)
 print("Probabilities:", probabilities)
 ```
 
-This allows you to integrate the recommendation system into notebooks, simulations, or larger tools without relying on the web UI.
+Make sure to run the script using the Python version where HoldemHelper was installed, for example:
+
+```bash
+python3.12 my_script.py
+```
+
+This lets you use HoldemHelper from scripts or interactive terminals without relying on the Streamlit web app.
 
 ## Project Structure
 ```
@@ -87,6 +148,21 @@ poker-decisions/
 ├── model/                      # Trained model artifacts (.pkl files)
 └── README.md
 ```
+
+## Flowchart of User Interaction with HoldemHelper
+
+![Flowchart showing user flow](src/images/flowchart_image.png)
+
+## Example Usage
+
+### Launching the Streamlit App
+![Launch Streamlit](src/images/streamlit_launch.png)
+
+### Interface for Input
+![User Input](src/images/interface_input.png)
+
+### Output Recommendation & Probabilities
+![Model Output](src/images/interface_output.png)
 
 ## Background
 Poker decisions are modeled based on preflop game theory, augmented using realistic betting lines and strategic assumptions. Weak and premium hands are synthetically reinforced to encourage better generalization on edge cases.
