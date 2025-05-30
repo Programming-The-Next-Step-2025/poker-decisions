@@ -82,7 +82,7 @@ decision, probs = HoldemHelper.recommender.recommend(
     hero_holding = "Th9h", 
     hero_pos = "CO", 
     prev_line = "UTG/call/HJ/2.5bb", 
-    num_players_still_in = 6
+    num_players = 6
     )
 print("Decision:", decision)
 print("Probabilities:", probs)
