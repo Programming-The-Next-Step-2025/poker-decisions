@@ -2,57 +2,67 @@
 
 HoldemHelper is a Python package for making statistically grounded poker decisions in 6-player Texas Hold'em. It includes functions for generating training data, evaluating scenarios, and inferring preflop actions using a trained machine learning model.
 
-While a Streamlit app is provided for demonstration and interactive use, the core functionality is built for integration as a standalone Python package.
+While a Streamlit app is provided for demonstration and interactive use, the core functionality is designed to be used as a standalone Python package.
 
-# HoldemHelper
-
-HoldemHelper is a Python package and Streamlit web application designed to assist poker players in making **data-driven preflop decisions** for 6-player Texas Hold'em games.
+---
 
 ## Overview
-This project combines expert-sourced strategy charts, synthetic data augmentation, and machine learning to recommend optimal plays (fold, call, raise) based on:
+
+This project combines expert strategy charts, synthetic data augmentation, and machine learning to recommend optimal plays—fold, call, or raise—based on:
+
 - Your hand (hole cards)
 - Your position at the table
 - Opponent betting actions before your turn
 
 The package can be used programmatically or via an optional Streamlit interface.
 
+---
+
 ## Machine Learning
+
 - Trains an XGBoost classifier using both real and synthetic data.
-- Encodes hands, positions, and game context into predictive features.
-- Evaluates accuracy, tests decision-making against known edge cases.
+- Encodes hand, position, and game context into predictive features.
+- Evaluates model performance and handles edge-case scenarios.
+
+---
 
 ## Features
+
 - Input card ranks and suits via an intuitive UI.
-- Track opponent action history.
-- Visualize recommendation probabilities.
-- Continuous improvements using synthetic scenarios like UTG folds and 4-bet/5-bet premiums.
+- Track and encode opponent betting history.
+- Visualize recommendation probabilities as bar charts.
+- Improve model generalization using strategically crafted synthetic data.
+
+---
 
 ## User Scenario
 
-**Purpose:** Demonstrate how a typical user interacts with the HoldemHelper software to receive a recommendation for a preflop poker decision.
+**Purpose:** Demonstrate how a typical user interacts with the HoldemHelper software to receive a recommendation for a preflop decision.
 
-**Individual:** Student A, a Research Master's student in Psychology at the University of Amsterdam. Interested in decision-making models and poker strategies.
+**User:** Student A, a Research Master's student in Psychology at the University of Amsterdam, exploring decision-making models and poker strategies.
 
 **Assumptions:**
-- The user has Python 3.9+ installed.
-- The HoldemHelper package has been installed locally.
-- The user has access to a web browser and a terminal.
 
-**Scenario:**
+- Python 3.9+ is installed.
+- The HoldemHelper package is locally installed.
+- A terminal and web browser are available.
 
-1. Student A opens the terminal on their laptop and navigates to the HoldemHelper project directory.
-2. They run the command `streamlit run src/app.py` to launch the Streamlit app.
-3. The app opens in their default browser, showing a card and position input interface.
-4. Student A selects `"Q"` and `"J"` as ranks, and hearts for both suits.
-5. They choose `"BTN"` (Button) as their position.
-6. They enter prior actions: `"UTG/fold", "HJ/raise", "CO/call"`.
-7. Student A clicks the **Get Recommendation** button.
-8. The app shows: **Recommended Action: call** and displays a probability chart.
-9. Student A uses this to explore how hand strength and position affect optimal plays.
+**Scenario Steps:**
 
-This scenario exemplifies how HoldemHelper provides an intuitive and educational experience for learning optimal poker strategies based on machine learning predictions.
+1. Student A navigates to the project folder using the terminal.
+2. Runs `streamlit run src/app.py` to start the app.
+3. The app opens in a browser, displaying an input interface.
+4. They select `"Q"` and `"J"` as ranks, both suited hearts.
+5. Chooses `"BTN"` (Button) as their position.
+6. Inputs actions: `"UTG/fold"`, `"HJ/raise"`, `"CO/call"`.
+7. Clicks **Get Recommendation**.
+8. The app shows: **Recommended Action: call** and a probability chart.
+9. Student A repeats the process with different inputs to explore optimal strategies.
+
+---
 
 ## Installation
+
 Clone the repository and install dependencies using pip:
 
 ```bash
@@ -61,114 +71,129 @@ cd poker-decisions
 pip install -e .
 ```
 
-Example usage of the package as a script or in a package
+---
+
+## Example: Using the Package in a Script
 
 ```python
 import HoldemHelper
+
 decision, probs = HoldemHelper.recommender.recommend(
-    hero_holding = "Ts9h", 
-    hero_pos = "SB", 
-    prev_line = "UTG/fold/HJ/call/CO/2.0bb/BTN/call", 
-    5)
-print(decision, probs)
-```
-
-### Running the Optional Streamlit App
-
-To launch the Streamlit web app locally, ensure you're in the correct project directory, using the correct Python version (e.g., Python 3.12), and that your Streamlit version is up-to-date (v1.25.0 or later is recommended) to avoid compatibility issues such as unsupported keyword arguments like `use_container_width`. You can update Streamlit using:
-
-```bash
-pip install --upgrade streamlit
-# or for conda users:
-conda update streamlit
-```
-
-Booting up the Streamlit App:
-
-```bash
-cd path/to/poker-decisions
-python3.12 -m streamlit run src/app.py
-```
-
-This will open a browser window displaying the HoldemHelper interface. From there, you can:
-
-1. Select two hole cards (rank and suit).
-2. Choose your position at the table (UTG, HJ, CO, BTN, SB, BB).
-3. Input prior actions from opponents (e.g., `UTG/fold`, `HJ/raise`).
-4. Click **Get Recommendation** to receive a model-driven action.
-5. View a horizontal bar chart showing the probability distribution for `fold`, `call`, or `raise`.
-
-The app uses a trained XGBoost model to simulate optimal preflop decisions in real-time.
-
-## Training the Model
-Regenerate training data and retrain the model:
-
-```bash
-python src/HoldemHelper/import_dataset.py
-```
-
-This will save the model to `model/poker_model.pkl`, along with the encoder and feature columns.
-
-## Using HoldemHelper as a Python Package
-
-After installing the package, you can use the core functionality in your own Python scripts, provided you're running the script with the correct Python interpreter (e.g., Python 3.12 if that's where HoldemHelper was installed):
-
-```python
-import HoldemHelper
-
-decision, probabilities = HoldemHelper.recommender.recommend(
-    hero_holding="QJs",
-    hero_pos="BTN",
-    prev_line="UTG/fold/HJ/raise/CO/call",
-    num_players=6
+    hero_holding="Ts9h", 
+    hero_pos="SB", 
+    prev_line="UTG/fold/HJ/call/CO/2.0bb/BTN/call", 
+    num_players=5
 )
 
 print("Recommended Action:", decision)
-print("Probabilities:", probabilities)
+print("Probabilities:", probs)
 ```
 
-Make sure to run the script using the Python version where HoldemHelper was installed, for example:
+> Make sure to run this script with the Python version where HoldemHelper was installed (e.g., Python 3.12):
 
 ```bash
 python3.12 my_script.py
 ```
 
-This lets you use HoldemHelper from scripts or interactive terminals without relying on the Streamlit web app.
+---
+
+## Running the Streamlit Web App
+
+To launch the app locally:
+
+1. Ensure you're in the project directory and using Python 3.12.
+2. Confirm that Streamlit is up-to-date (v1.25.0+). To upgrade:
+
+```bash
+pip install --upgrade streamlit
+# Or with conda:
+conda update streamlit
+```
+
+3. Launch the app:
+
+```bash
+python3.12 -m streamlit run src/app.py
+```
+
+Once launched, the app will open in your browser. You can:
+
+- Select two cards (rank and suit)
+- Choose your position (UTG, HJ, CO, BTN, SB, BB)
+- Enter prior actions (e.g., `UTG/fold`, `HJ/raise`)
+- Click **Get Recommendation**
+- View a probability chart for fold, call, or raise
+
+---
+
+## Training the Model
+
+To regenerate training data and retrain the model:
+
+```bash
+python src/HoldemHelper/import_dataset.py
+```
+
+This creates the following files in the `model/` directory:
+
+- `poker_model.pkl`
+- `label_encoder.pkl`
+- `feature_columns.pkl`
+
+---
 
 ## Project Structure
+
 ```
 poker-decisions/
 ├── src/
 │   ├── app.py                  # Streamlit app UI
-│   ├── HoldemHelper/
-│   │   ├── import_dataset.py   # Data creation and training
-│   │   ├── recommend.py        # Model inference logic
-│   │   ├── hand_strengths.py   # Static strength values for all hands
-│   │   └── ...                 # Other helpers
-├── model/                      # Trained model artifacts (.pkl files)
+│   └── HoldemHelper/
+│       ├── import_dataset.py   # Dataset generation & model training
+│       ├── recommend.py        # Prediction logic
+│       ├── hand_strengths.py   # Predefined hand strengths
+│       └── ...                 # Additional utilities
+├── model/                      # Trained model artifacts (.pkl)
+├── src/images/                 # Flowchart and UI screenshots
 └── README.md
 ```
 
-## Flowchart of User Interaction with HoldemHelper
+---
+
+## Flowchart of User Interaction
 
 ![Flowchart showing user flow](src/images/flowchart_image.png)
 
-## Example Usage
+---
 
-### Launching the Streamlit App
+## Example Screenshots
+
+### Launching the App
+
 ![Launch Streamlit](src/images/streamlit_launch.png)
 
-### Interface for Input
+### Input Interface
+
 ![User Input](src/images/interface_input.png)
 
-### Output Recommendation & Probabilities
+### Model Recommendation Output
+
 ![Model Output](src/images/interface_output.png)
 
+---
+
 ## Background
-Poker decisions are modeled based on preflop game theory, augmented using realistic betting lines and strategic assumptions. Weak and premium hands are synthetically reinforced to encourage better generalization on edge cases.
+
+This project models preflop poker decisions using machine learning and domain expertise. It emphasizes educational value through realistic simulations and smart augmentation. The model is trained with a focus on edge cases such as weak hands and multi-raise scenarios.
+
+---
 
 ## Contributing
-Contributions and suggestions are welcome! Feel free to fork the repo, submit issues, or make pull requests.
+
+Suggestions and contributions are welcome! Fork the repository, submit issues, or create pull requests on GitHub.
+
+---
 
 ## License
+
 MIT License
